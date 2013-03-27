@@ -9,7 +9,10 @@ Two adjustments were required:
 ## XACML files to enforce soft deletes
 
 Replace default XACML policies with the repository-policies.
-`test.sh` is for verifying the Fedora configuration.
+
+https://github.com/ldcx/ldcx-2013/tree/master/sessions/soft-deletes-in-fedora
+
+[`test.sh`](https://github.com/ldcx/ldcx-2013/blob/master/sessions/soft-deletes-in-fedora/test.sh) is for verifying the Fedora configuration.
 
 ## Rubydora and ActiveFedora behavior
 
