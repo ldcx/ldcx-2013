@@ -40,37 +40,37 @@ What does DSpace do?
 
 What hydra heads are like DSpace?
 1. sufia close
--- has hooks for authority control
--- has embargo
--- has a notion of custom machine tasks
+    - has hooks for authority control
+    - has embargo
+    - has a notion of custom machine tasks
 2. hydrus from Standford has workflow
--- has collections (for UI) and apos (for access control etc.)
--- hydrus workflow demo: roles for collection: owner, managers, reviewers, depositors, viewer; collection has status, defaults/requirements for embargo delay, visibility, requirement for review, license; each item in collection has status in workflow; keeps track of item history;
--- hydrus has notions only of individuals and everyone so far; DSpace has users and groups (defined internally, group management UI) for permissions.
--- hydrus has early assignment of ids whereas DSpace assigns persistent ids late which causes problems with systems such as SWORD where you need an id to pass back in response to a deposit. Nobody present argues that this early assignment would be bad.
--- hydrus has email notification and a dashboard. This mirrors DSpace
+    - has collections (for UI) and apos (for access control etc.)
+    - hydrus workflow demo: roles for collection: owner, managers, reviewers, depositors, viewer; collection has status, defaults/requirements for embargo delay, visibility, requirement for review, license; each item in collection has status in workflow; keeps track of item history;
+    - hydrus has notions only of individuals and everyone so far; DSpace has users and groups (defined internally, group management UI) for permissions.
+    - hydrus has early assignment of ids whereas DSpace assigns persistent ids late which causes problems with systems such as SWORD where you need an id to pass back in response to a deposit. Nobody present argues that this early assignment would be bad.
+    - hydrus has email notification and a dashboard. This mirrors DSpace
 3. argo
-- has workflow tasks that are similar to DSpace curation tasks
+    - has workflow tasks that are similar to DSpace curation tasks
 
 What of DSpace is missing from hydra systems?
 1. SWORD deposit plugin
--- use cases: publisher deposit, repo->repo
--- Ben Armintor has been working on Fedora 3.6 SWORD 1.3 plugin (use case is BMC article deposit direct into Fedora)
--- comments that SWORD deposit into a hydra system should go through the hydra stack so that it gets a rights metadata stream and goes through any other business logic in hydra
+    - use cases: publisher deposit, repo->repo
+    - Ben Armintor has been working on Fedora 3.6 SWORD 1.3 plugin (use case is BMC article deposit direct into Fedora)
+    - comments that SWORD deposit into a hydra system should go through the hydra stack so that it gets a rights metadata stream and goes through any other business logic in hydra
 2. group management
 3. template metadata forms/requirement on per collection basis (in DSpace this relies upon the template registry functionality but perhaps that isn't the best underpinning)
 4. batch load facility in DSpace is transactional, currently not trivially supported with Fedora
 5. deployability - DSpace is very easy to deploy.
--- Justin comments that he is quite close to being able to deploy sufia as a war file
--- other comments that this might be required for broader adoption, along with other things like language localization, but need to get functional match first
+    - Justin comments that he is quite close to being able to deploy sufia as a war file
+    - other comments that this might be required for broader adoption, along with other things like language localization, but need to get functional match first
 
 What is most important is transcending DSpace?
 - workflow system
--- Justin - suggests that hydrus workflow would be the starting point
--- Tom/Simeon - can the workflow of hydrus be abstracted so that it could be used with sufia or other?
--- Justin - 2 weeks to abstract ??
+    - Justin - suggests that hydrus workflow would be the starting point
+    - Tom/Simeon - can the workflow of hydrus be abstracted so that it could be used with sufia or other?
+    - Justin - 2 weeks to abstract ??
 - group management
--- Justin - other people want group management separate from the DSpace discussion
+    - Justin - other people want group management separate from the DSpace discussion
 
 Practical questions is how to get parts required from hydrus and sufia to work together?
 - suggestion to create gem for hydrus (it took about 2 weeks full-time for sufia) - est. 1 person-month effort
