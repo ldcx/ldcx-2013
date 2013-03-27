@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:1.0:policy"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        PolicyId="deny-purge"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Description>deny any object or datastream purging except for those in the legacy namespaces</Description>
+  <Target>
+    <Subjects>
+      <AnySubject/>
+    </Subjects>
+    <Resources>
+      <AnyResource/>
+    </Resources>
+    <Actions>
+      <Action>
+        <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-purgeObject</AttributeValue>
+          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+            AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+        </ActionMatch>
+      </Action>
+      <Action>
+        <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:fedora:names:fedora:2.1:action:id-purgeDatastream</AttributeValue>
+          <ActionAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string"
+            AttributeId="urn:fedora:names:fedora:2.1:action:id"/>
+        </ActionMatch>
+      </Action>
+    </Actions>
+  </Target>
+  <Rule RuleId="1" Effect="Deny">
+    <Condition FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false" AttributeId="urn:fedora:names:fedora:2.1:resource:object:namespace" />
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ARCH-SEASIDE</AttributeValue>
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">CATHOLLIC-PAMPHLET</AttributeValue>
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">CYL</AttributeValue>
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LAPOP</AttributeValue>
+            <!-- <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">NDU</AttributeValue> -->
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">VIDEO-CONTENT</AttributeValue>
+          </Apply>
+        </Apply>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match" />
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">RBSC-.*</AttributeValue>
+          <ResourceAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false" AttributeId="urn:fedora:names:fedora:2.1:resource:object:namespace" />
+        </Apply>
+      </Apply>
+    </Condition>
+  </Rule>
+</Policy>
