@@ -16,7 +16,11 @@ https://github.com/ldcx/ldcx-2013/tree/master/sessions/soft-deletes-in-fedora
 
 ## Rubydora and ActiveFedora behavior
 
+Here are the few lines of code to implement soft deletes:
+
 https://github.com/ndlib/curate_nd/blob/master/config/initializers/active_fedora_monkey_patch.rb
+
+And a test to verify behavior:
 
 https://github.com/ndlib/curate_nd/blob/master/spec/initializers/active_fedora_monkey_patch_spec.rb
 
