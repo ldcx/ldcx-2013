@@ -39,6 +39,7 @@ What does DSpace do?
     - tasks are jvm code, once in system can be hooked up via std configuration
 
 What hydra heads are like DSpace?
+
 1. sufia close
     - has hooks for authority control
     - has embargo
@@ -53,6 +54,7 @@ What hydra heads are like DSpace?
     - has workflow tasks that are similar to DSpace curation tasks
 
 What of DSpace is missing from hydra systems?
+
 1. SWORD deposit plugin
     - use cases: publisher deposit, repo->repo
     - Ben Armintor has been working on Fedora 3.6 SWORD 1.3 plugin (use case is BMC article deposit direct into Fedora)
@@ -65,6 +67,7 @@ What of DSpace is missing from hydra systems?
     - other comments that this might be required for broader adoption, along with other things like language localization, but need to get functional match first
 
 What is most important is transcending DSpace?
+
 - workflow system
     - Justin - suggests that hydrus workflow would be the starting point
     - Tom/Simeon - can the workflow of hydrus be abstracted so that it could be used with sufia or other?
@@ -73,6 +76,7 @@ What is most important is transcending DSpace?
     - Justin - other people want group management separate from the DSpace discussion
 
 Practical questions is how to get parts required from hydrus and sufia to work together?
+
 - suggestion to create gem for hydrus (it took about 2 weeks full-time for sufia) - est. 1 person-month effort
 - selection of appropriate elements from sufia and hydrus - est. ?? effort
 - Tim says that once Oregon Digital project is done (maybe 1.5 years from now) then might have time to spend on migrating DSpace; maybe UofO would also be interested (perhaps sooner)
