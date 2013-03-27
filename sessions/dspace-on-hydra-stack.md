@@ -6,14 +6,14 @@ DSpace on the hydra stack
 What does DSpace do?
 
 - two step accession process:
--- 1. submission part which include
---- metadata entry, then file upload
----- configurable submission templates per collection (required elements etc.)
---- alternative is batch upload (using DSpace specific simple archive format), SWORD deposit
--- 2. workflow with three optional async steps (model behind has task pool with individuals with roles)
---- collection manager would determine whether appropriate for collection
---- metadata specialist might refine metadata
---- review before final session
+    1. submission part which include
+        - metadata entry, then file upload
+        - configurable submission templates per collection (required elements etc.)
+        - alternative is batch upload (using DSpace specific simple archive format), SWORD deposit
+    2. workflow with three optional async steps (model behind has task pool with individuals with roles)
+        - collection manager would determine whether appropriate for collection
+        - metadata specialist might refine metadata
+        - review before final session
 
 - many people do batch edit (dump, edit, batch upload again) and the DB transaction facility is leveraged to mean that a failure part-way through a batch update will cause failure of the whole batch without partial completion
 
@@ -29,14 +29,14 @@ What does DSpace do?
 - has embargo notion which is widely used
 
 - data model around which much is based:
--- community
--- collection
---- item
----- datastream
+    - community
+    - collection
+        - item
+            - datastream
 
 - recent DSpace has notion of canned curation tasks which may be attached at certain points
--- designed to be machine triggered, e.g. run virus check on incoming content; if there is DOI in citations then look up bibtex data
--- tasks are jvm code, once in system can be hooked up via std configuration
+    - designed to be machine triggered, e.g. run virus check on incoming content; if there is DOI in citations then look up bibtex data
+    - tasks are jvm code, once in system can be hooked up via std configuration
 
 What hydra heads are like DSpace?
 1. sufia close
