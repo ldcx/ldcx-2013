@@ -20,7 +20,7 @@ admin_pass=fedoraAdmin
 modify_fedora=true
 
 special_prefixes="ARCH-SEASIDE CATHOLLIC-PAMPHLET CYL LAPOP NDU RBSC- VIDEO-CONTENT"
-delete_prefixes="ARCH-SEASIDE CATHOLLIC-PAMPHLET CYL LAPOP NDU RBSC- VIDEO-CONTENT"
+deletable_prefixes="ARCH-SEASIDE CATHOLLIC-PAMPHLET CYL LAPOP RBSC- VIDEO-CONTENT"
 
 output_dir=$(dirname $0)/output
 mkdir -p $output_dir
@@ -62,6 +62,10 @@ function tell_fedora() {
                 ;;
             not_verbose)
                 not_verbose=true
+                shift
+                ;;
+            status_only)
+                options+=' -w "%{http_code}" -o /dev/null'
                 shift
                 ;;
             *)
@@ -139,19 +143,60 @@ function perform_test() {
 }
 
 function create_object() {
-    # TODO: check if the object exists before trying to create it
-    printf "Creating $1 test object\\n"
-    tell_fedora "objects/$1?label=test" admin not_verbose post 2>&1 1>/dev/null
-    # the above may error if the object already exists
+    local pid="$1"
+    # does object exist?
+    local code=$(tell_fedora "objects/$pid" admin not_verbose status_only)
+    case $code in
+        *200*)
+            # object exists...don't do anything
+            printf "Object $pid already exists\\n"
+            ;;
+        *401*)
+            # object exists, but we don't have permission to touch it
+            printf "Don't have permission to access $pid\\n"
+            return 1
+            ;;
+        *404*)
+            # object does not exist
+            printf "Creating object $pid\\n"
+            tell_fedora "objects/$pid?label=test" admin not_verbose post 2>&1 1>/dev/null
+            ;;
+        *)
+            # wat?!
+            printf "Got code $code making $pid\\n"
+            return 1
+            ;;
+    esac
 }
 
+noid=test
 if [ $modify_fedora = true ]; then
-    create_object "changeme:1"
-    for prefix in $special_prefixes; do
-        create_object "$prefix:test"
+    printf "Creating test objects\\n"
+    error_count=0
+    count=0
+    while true ; do
+        let count++
+        let error_count++
+        if [ $error_count -ge 100 ]; then
+            printf "Serious problem making objects\\n"
+            printf "Continuing anyway\\n"
+            break
+        fi
+        create_object "changeme:$noid$count"
+        if [ $? -ne 0 ]; then
+            continue
+        fi
+        for prefix in $special_prefixes; do
+            create_object "$prefix:$noid$count"
+            if [ $? -ne 0 ]; then
+                continue 2
+            fi
+        done
+        break
     done
+    noid="$noid$count"
 else
-    printf "Please ensure the objects changeme:1 exists in fedora\\n"
+    printf "Not loading objects since modify_fedora is off\\n"
 fi
 
 # Must also enable listDatastreams to get the API-A version of
@@ -160,22 +205,30 @@ fi
 
 
 printf "========== Testing API-A-LITE (deprecated) ==========\\n"
-should_only_work_admin "describeRepository works" "describe"
+should_work "describeRepository" "describe"
 should_only_work_admin "findObjects" "search?query=pid%7E*&pid=true"
 # resumeFindObjects # test not implemented
-should_only_work_admin "getDatastreamDissemination changeme" "get/changeme:1/DC"
-# getDissemination # test not implemented
-should_only_work_admin "getObjectHistory History" "getObjectHistory/changeme:1"
-should_only_work_admin "getObjectProfile changeme" "get/changeme:1"
-should_only_work_admin "listDatastreams changeme" "listDatastreams/changeme:1?xml=true"
-should_only_work_admin "listMethods changeme" "listMethods/changeme:1?xml=true"
+
+function api_a_lite_common() {
+    local prefix=$1
+
+    # getDissemination # test not implemented
+    should_only_work_admin "getObjectHistory $prefix" "getObjectHistory/$prefix:$noid"
+    should_only_work_admin "getObjectProfile $prefix" "get/$prefix:$noid"
+    should_only_work_admin "listMethods $prefix" "listMethods/$prefix:$noid?xml=true"
+}
+
+should_only_work_admin "getDatastreamDissemination changeme" "get/changeme:$noid/DC"
+should_only_work_admin "listDatastreams changeme" "listDatastreams/changeme:$noid?xml=true"
+api_a_lite_common changeme
+
 for prefix in $special_prefixes; do
-    should_work "getDatastreamDissemination $prefix" "get/$prefix:test/DC"
-    should_only_work_admin "getObjectHistory $prefix" "getObjectHistory/$prefix:test"
-    should_only_work_admin "getObjectProfile $prefix" "get/$prefix:test"
-    should_work "listDatastreams $prefix" "listDatastreams/$prefix:test?xml=true"
-    should_only_work_admin "listMethods $prefix" "listMethods/$prefix:test?xml=true"
+    should_work "getDatastreamDissemination $prefix" "get/$prefix:$noid/DC"
+    should_work "listDatastreams $prefix" "listDatastreams/$prefix:$noid?xml=true"
+    api_a_lite_common $prefix
 done
+
+
 
 printf "========== API-M-LITE (deprecated) ==========\\n"
 if [ $modify_fedora = true ]; then
@@ -186,71 +239,102 @@ else
     printf "Skipping tests which modify Fedora\\n"
 fi
 
+
+
+
 printf "========== Testing API-A ==========\\n"
 # should_work "describeRepository" ""  # This entry has not been implemented by Fedora
 should_only_work_admin "findObjects" "objects?query=pid%7E*&pid=true"
 # should_work "resumeFindObjects" "" # test not implemented
-should_only_work_admin "getDatastreamDissemination changeme" "objects/changeme:1/datastreams/DC/content"
+
+function api_a_common() {
+    local prefix=$1
+
+    should_only_work_admin "getObjectHistory $prefix" "objects/$prefix:$noid/versions?format=xml"
+    should_only_work_admin "getObjectProfile $prefix" "objects/$prefix:$noid?format=xml"
+    should_only_work_admin "listMethods $prefix" "objects/$prefix:$noid/methods?format=xml"
+}
+
+should_only_work_admin "getDatastreamDissemination changeme" "objects/changeme:$noid/datastreams/DC/content"
+should_only_work_admin "listDatastreams changeme" "objects/changeme:$noid/datastreams?format=xml"
 # should_work "getDissemination" "" # test not implemented
-should_only_work_admin "getObjectHistory changeme" "objects/changeme:1/versions?format=xml"
-should_only_work_admin "getObjectProfile changeme" "objects/changeme:1?format=xml"
-should_only_work_admin "listDatastreams changeme" "objects/changeme:1/datastreams?format=xml"
-should_only_work_admin "listMethods changeme" "objects/changeme:1/methods?format=xml"
+api_a_common changeme
 
 for prefix in $special_prefixes; do
-    should_work "getDatastreamDissemination $prefix" "objects/$prefix:test/datastreams/DC/content"
-    # should_work "getDissemination" "" # test not implemented
-    should_only_work_admin "getObjectHistory $prefix" "objects/$prefix:test/versions?format=xml"
-    should_only_work_admin "getObjectProfile $prefix" "objects/$prefix:test?format=xml"
-    should_work "listDatastreams $prefix" "objects/$prefix:test/datastreams?format=xml"
-    should_only_work_admin "listMethods $prefix" "objects/$prefix:test/methods?format=xml"
+    should_work "getDatastreamDissemination $prefix" "objects/$prefix:$noid/datastreams/DC/content"
+    should_work "listDatastreams $prefix" "objects/$prefix:$noid/datastreams?format=xml"
+    api_a_common $prefix
 done
+
+
 
 printf "========== Testing API-M ==========\\n"
-should_only_work_admin "export changeme" "objects/changeme:1/export"
-should_only_work_admin "getDatastream changeme" "objects/changeme:1/datastreams/DC?format=xml"
-should_only_work_admin "getDatastreamHistory changeme" "objects/changeme:1/datastreams/DC/history?format=xml"
-should_only_work_admin "getDatastreams changeme" "objects/changeme:1/datastreams?profiles=true"
-should_only_work_admin "getObjectXML changeme" "objects/changeme:1/objectXML"
-should_only_work_admin "getRelationships changeme" "objects/changeme:1/relationships"
-# should_only_work_admin "compareDatastreamChecksum changeme" "" # test not implemented
-should_only_work_admin "validate changeme" "objects/changeme:1/validate"
-
-for prefix in $special_prefixes; do
-    should_only_work_admin "export $prefix" "objects/$prefix:test/export"
-    should_only_work_admin "getDatastream $prefix" "objects/$prefix:test/datastreams/DC?format=xml"
-    should_only_work_admin "getDatastreamHistory $prefix" "objects/$prefix:test/datastreams/DC/history?format=xml"
-    should_only_work_admin "getDatastreams $prefix" "objects/$prefix:test/datastreams?profiles=true"
-    should_only_work_admin "getObjectXML $prefix" "objects/$prefix:test/objectXML"
-    should_only_work_admin "getRelationships $prefix" "objects/$prefix:test/relationships"
+for prefix in changeme $special_prefixes; do
+    should_only_work_admin "export $prefix" "objects/$prefix:$noid/export"
+    should_only_work_admin "getDatastream $prefix" "objects/$prefix:$noid/datastreams/DC?format=xml"
+    should_only_work_admin "getDatastreamHistory $prefix" "objects/$prefix:$noid/datastreams/DC/history?format=xml"
+    should_only_work_admin "getDatastreams $prefix" "objects/$prefix:$noid/datastreams?profiles=true"
+    should_only_work_admin "getObjectXML $prefix" "objects/$prefix:$noid/objectXML"
+    should_only_work_admin "getRelationships $prefix" "objects/$prefix:$noid/relationships"
     # should_only_work_admin "compareDatastreamChecksum $prefix" "" # test not implemented
-    should_only_work_admin "validate $prefix" "objects/$prefix:test/validate"
+    should_only_work_admin "validate $prefix" "objects/$prefix:$noid/validate"
 done
+
+function api_m_common() {
+    local prefix="$1"
+
+    should_only_work_admin "addDatastream $prefix" "objects/$prefix:$noid/datastreams/test?controlGroup=M&dsLabel=test&checksumType=SHA-256&mimeType=text/plain" post_data "some-content"
+    should_only_work_admin "addRelationship $prefix" "objects/$prefix:$noid/relationships/new?predicate=http%3a%2f%2fwww.example.org%2frels%2fname&object=dublin%20core&isLiteral=true" post
+    #should_not_work "ingest $prefix" "objects/$prefix:$noid/relationships"
+    should_only_work_admin "modifyDatastream $prefix" "objects/$prefix:$noid/datastreams/test?dsLabel=test-changed" put
+    should_only_work_admin "modifyObject $prefix" "objects/$prefix:$noid?label=test--new%20label" put
+    should_only_work_admin "setDatastreamVersionable $prefix" "objects/$prefix:$noid/datastreams/test?versionable=true" put
+    should_only_work_admin "setDatastreamState $prefix" "objects/$prefix:$noid/datastreams/test?dsState=I" put
+    # unimplemented:
+    #purgeRelationship
+    #upload
+}
+
+function should_only_soft_delete() {
+    local prefix="$1"
+
+    # the ordering of the following tests is important since the "D" states render
+    # the object/datastream unreachable
+    should_not_work "purgeDatastream $prefix" "objects/$prefix:$noid/datastreams/test" delete
+    should_not_work "purgeObject $prefix" "objects/$prefix:$noid" delete
+    # this relies on the previous test passing (so the object still exists)
+    # and the datastream having a "D" state
+
+    # Fedora bug? cannot set the datastream state to D...think the xacml policy is confusing
+    # the current ds state with the new ds state
+    #should_only_work_admin "setDatastreamState D $prefix" "objects/$prefix:$noid/datastreams/test?dsState=D" put
+    #should_not_work "get D datastream $prefix" "objects/$prefix:$noid/datastreams/test/content"
+    # put the object in a D state and try to access
+    should_only_work_admin "set object D state $prefix" "objects/$prefix:$noid?state=D" put
+    should_not_work "get D object $prefix" "objects/$prefix:$noid?format=xml"
+    should_not_work "get datastream from D object $prefix" "objects/$prefix:$noid/datastreams/test/content"
+}
+
+function should_purge() {
+    local prefix="$1"
+
+    # for these tests, we do not care about soft deletes...because these objects
+    # can be purged outright
+    should_only_work_admin "purgeDatastream $prefix" "objects/$prefix:$noid/datastreams/test" delete
+    should_only_work_admin "purgeObject $prefix" "objects/$prefix:$noid" delete
+}
 
 if [ $modify_fedora = true ]; then
     should_only_work_admin "getNextPID" "objects/nextPID" post
-    should_only_work_admin "addDatastream changeme" "objects/changeme:1/datastreams/test?controlGroup=M&dsLabel=test&checksumType=SHA-256&mimeType=text/plain" post_data "some-content"
-    should_only_work_admin "addRelationship changeme" "objects/changeme:1/relationships/new?predicate=http%3a%2f%2fwww.example.org%2frels%2fname&object=dublin%20core&isLiteral=true" post
-    # didn't have time to implement tests for these calls
-    #should_not_work "ingest changeme" "objects/changeme:1/relationships"
-    should_only_work_admin "modifyDatastream changeme" "objects/changeme:1/datastreams/test?dsLabel=test-changed" put
-    should_only_work_admin "modifyObject changeme" "objects/changeme:1?label=test--new%20label" put
-    should_only_work_admin "setDatastreamVersionable changeme" "objects/changeme:1/datastreams/test?versionable=true" put
-    should_only_work_admin "setDatastreamState changeme" "objects/changeme:1/datastreams/test?dsState=D" put
-    should_not_work "purgeDatastream changeme" "objects/changeme:1/datastreams/test" delete
-    should_not_work "purgeObject changeme" "objects/changeme:1" delete
-    #purgeRelationship
-    #upload
 
-    for prefix in $special_prefixes; do
-        should_only_work_admin "addDatastream $prefix" "objects/$prefix:test/datastreams/test?controlGroup=M&dsLabel=test&checksumType=SHA-256&mimeType=text/plain" post_data "some-content"
-        should_only_work_admin "addRelationship $prefix" "objects/$prefix:test/relationships/new?predicate=http%3a%2f%2fwww.example.org%2frels%2fname&object=dublin%20core&isLiteral=true" post
-        should_only_work_admin "modifyDatastream $prefix" "objects/$prefix:test/datastreams/test?dsLabel=test-changed" put
-        should_only_work_admin "modifyObject $prefix" "objects/$prefix:test?label=test--new%20label" put
-        should_only_work_admin "setDatastreamVersionable $prefix" "objects/$prefix:test/datastreams/test?versionable=true" put
-        should_only_work_admin "setDatastreamState $prefix" "objects/$prefix:test/datastreams/test?dsState=D" put
-        should_not_work "purgeDatastream $prefix" "objects/$prefix:test/datastreams/test" delete
-        should_not_work "purgeObject $prefix" "objects/$prefix:test" delete
+    for prefix in changeme NDU; do
+        api_m_common $prefix
+        should_only_soft_delete $prefix
+    done
+
+    for prefix in $deletable_prefixes; do
+        api_m_common $prefix
+        should_purge $prefix
     done
 else
     printf "Skipping tests which modify Fedora\\n"
