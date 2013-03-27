@@ -75,6 +75,11 @@ Mark one commit as good and another as bad, then run bisect.
 
 http://www.askbjoernhansen.com/2010/04/30/git_bisect_mini_tutorial.html
 
+rake
+----
+
+Where are my rake tasts defined:
+`rake -w`
 
 awesome_print
 -------------
