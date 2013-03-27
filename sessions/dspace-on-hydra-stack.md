@@ -1,9 +1,9 @@
 DSpace on the hydra stack
--------------------------
+=========================
 
 2013-03-26 1pm
 
-What does DSpace do?
+== What does DSpace do?
 
 - two step accession process:
     1. submission part which include
@@ -38,7 +38,7 @@ What does DSpace do?
     - designed to be machine triggered, e.g. run virus check on incoming content; if there is DOI in citations then look up bibtex data
     - tasks are jvm code, once in system can be hooked up via std configuration
 
-What hydra heads are like DSpace?
+== What hydra heads are like DSpace?
 
 1. sufia close
     - has hooks for authority control
@@ -53,7 +53,7 @@ What hydra heads are like DSpace?
 3. argo
     - has workflow tasks that are similar to DSpace curation tasks
 
-What of DSpace is missing from hydra systems?
+== What of DSpace is missing from hydra systems?
 
 1. SWORD deposit plugin
     - use cases: publisher deposit, repo->repo
@@ -66,7 +66,7 @@ What of DSpace is missing from hydra systems?
     - Justin comments that he is quite close to being able to deploy sufia as a war file
     - other comments that this might be required for broader adoption, along with other things like language localization, but need to get functional match first
 
-What is most important is transcending DSpace?
+== What is most important is transcending DSpace?
 
 - workflow system
     - Justin - suggests that hydrus workflow would be the starting point
@@ -75,7 +75,7 @@ What is most important is transcending DSpace?
 - group management
     - Justin - other people want group management separate from the DSpace discussion
 
-Practical questions is how to get parts required from hydrus and sufia to work together?
+== Practical questions is how to get parts required from hydrus and sufia to work together?
 
 - suggestion to create gem for hydrus (it took about 2 weeks full-time for sufia) - est. 1 person-month effort
 - selection of appropriate elements from sufia and hydrus - est. ?? effort
