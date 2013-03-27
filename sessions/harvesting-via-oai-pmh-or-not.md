@@ -35,7 +35,9 @@ Simeon (me) argues that the NISO/OAI ResourceSync project is thinking along very
 - beta spec at <http://www.openarchives.org/rs/0.5>
 - discussion group at <https://groups.google.com/d/forum/resourcesync>
 - going to have v0.6 in a few weeks which separates the core capabailities from the archives in separate documents. Also add document describing push methods (XMPP, http callback etc) that were in the earlier draft before we moved back to the sitemaps format <http://www.openarchives.org/rs/0.1/resourcesync#PushingChangesets>
-- picture of links between documents attached (changed slightly from 0.5 spec, will be reflected in 0.6). This is perhaps a bit more complicated than need because it includes the optional sitameps paging mechanism documents (using sitemapindex, shown with dashed line)
+- picture of links between documents below (changed slightly from 0.5 spec, will be reflected in 0.6). This is perhaps a bit more complicated than need because it includes the optional sitameps paging mechanism documents (using sitemapindex, shown with dashed line)
+
+![ResourceSync object hierarchy](https://github.com/ldcx/ldcx-2013/blob/master/sessions/harvesting-via-oai-pmh-or-not--resourcesync.png)
 
 Could OAI-PMH libraries be retrofitted to provide multi-format support to help migration for? Suggestion that trying to implement over Content DM would be good, would also help refine/validate spec.
 
