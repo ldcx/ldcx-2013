@@ -1,0 +1,94 @@
+
+
+phantom.js ( http://phantomjs.org/ )
+* continuous integration  
+* selenium
+* saucelabs.com
+* browserstack.com
+  
+
+
+cucumber (boo)
+* people stopped
+* translation layer too hard
+  
+speeding up your testing
+* guard ( https://github.com/guard/guard )
+* spring ( https://github.com/jonleighton/spring ) pre-loader, rival to spork
+* spork ( https://github.com/sporkrb/spork )
+* livereload ( https://github.com/guard/guard-livereload)
+  
+integration 
+  view/testing
+  
+  
+capybara/webkit unreliable?
+selenium-webdriver: better, but you need to keep track of firefox version
+
+
+
+
+
+
+integration testing: 
+* use i18n: it lets your test and view be connected, because you're looking for the same string, but is this too brittle?
+* should i18n
+  
+  
+how to interact with end users:
+* what level of nitpickyness
+* how much to let them into the process
+  
+
+
+usability testing:
+* focus groups
+* don't let the developer speak
+  
+  
+tracking people:
+* add information like browser, page they were on
+* mouseflow ( http://mouseflow.com/ )
+  
+cute analytics tricks:
+* section off people based on whether they're staff or not.
+* video engagement analytics
+
+
+writing view/integration tests ahead of time is tough if you're not doing wireframes, but you can do very simple wireframes
+
+
+using mocks of external services is really useful
+don't mock the framework you're including
+vcd caches sold results and other externals
+( http://railscasts.com/episodes/291-testing-with-vcr )
+
+
+continuous integration via jenkins ( http://jenkins-ci.org/ )
+
+
+rails best practice gem ( https://github.com/railsbp/rails_best_practices )
+brakeman security scanner ( http://brakemanscanner.org/ )
+
+
+jose valim crafting rails applications
+http://plataformatec.com.br/crafting-rails-applications
+
+
+turn on random order for spec
+
+
+javascript testing: nobody knows!
+* http://pivotal.github.com/jasmine/
+* http://qunitjs.com/
+
+
+
+
+examples of integration:
+* https://github.com/ndlib/curate_nd/tree/master/spec/features
+* https://github.com/jronallo/kinney/tree/master/test/integration
+
+
+write after the fact, because they're the regression test
+_______________________________________________LibDevConX mailing listLibDevConX@lists.stanford.eduhttps://mailman.stanford.edu/mailman/listinfo/libdevconx
